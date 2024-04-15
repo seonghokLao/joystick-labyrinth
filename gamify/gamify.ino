@@ -38,17 +38,25 @@ void loop() {
 
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
-  for (uint8_t i = 0; i < SensorCount; i++)
-  {
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
-    if (sensorValues[i] < 200) {
+  // for (uint8_t i = 0; i < SensorCount; i++)
+  // {
+  //   Serial.print(sensorValues[i]);
+  //   Serial.print('\t');
+  //   if (sensorValues[i] < 200) {
+  //     lcd.print("you won");
+  //     delay(1200);
+  //   } else {
+  //     lcd.print("in game");
+  //   }
+  // }
+
+  if (sensorValues[0] < 200) {
       lcd.print("you won");
       delay(1200);
-    } else {
+  } else {
       lcd.print("in game");
-    }
   }
+
   Serial.println();
 
   delay(10);
