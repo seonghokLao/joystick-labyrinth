@@ -29,7 +29,8 @@ void setup() {
 void loop() {
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 0);
+  lcd.print("Score: ");
   // print the number of seconds since reset:
   // lcd.print(millis() / 1000);
 
@@ -38,23 +39,13 @@ void loop() {
 
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
-  // for (uint8_t i = 0; i < SensorCount; i++)
-  // {
-  //   Serial.print(sensorValues[i]);
-  //   Serial.print('\t');
-  //   if (sensorValues[i] < 200) {
-  //     lcd.print("you won");
-  //     delay(1200);
-  //   } else {
-  //     lcd.print("in game");
-  //   }
-  // }
-
   if (sensorValues[0] < 200) {
-      lcd.print("you won");
-      delay(1200);
+    lcd.setCursor(0, 1);
+    lcd.print("you won");
+    delay(1200);
   } else {
-      lcd.print("in game");
+    lcd.setCursor(0, 1);
+    lcd.print("in game");
   }
 
   Serial.println();
