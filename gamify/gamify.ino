@@ -1,22 +1,25 @@
 
-// include the library code:
 #include <LiquidCrystal.h> // for lcd
 #include <QTRSensors.h> // for sensor
 
-// initialize the library by associating any needed LCD interface pin
-// with the arduino pin number it is connected to
-const int rs = 53, en = 51, d4 = 44, d5 = 45, d6 = 47, d7 = 46;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const int rs = 53, en = 51, d4 = 44, d5 = 45, d6 = 47, d7 = 46; // pin nums for lcd
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
 
-QTRSensors qtr;
-
+QTRSensors qtr; // created reflective sensor object
 const uint8_t SensorCount = 1; // 1 bc we only have 1 sensor
 uint16_t sensorValues[SensorCount];
 
+enum GameState {
+  BEGIN_STATE,
+  IN_GAME_STATE
+};
+
+GameState currState = BEGIN_STATE;
+
+
+
 void setup() {
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-  // Print a message to the LCD.
+  lcd.begin(16, 2); // LCD's number of columns and rows
   // lcd.print("hello, world!");
 
   qtr.setTypeAnalog();
@@ -26,7 +29,33 @@ void setup() {
   Serial.begin(9600);
 }
 
+
+
 void loop() {
+
+  switch(currState) {
+    case BEGIN_STATE:
+      // code for starting new game
+      Serial.println("we are in begin state");
+      lcd.print("Welcome to Labyrinth");
+    
+    case IN_GAME_STATE:
+      Serial.println("in, in game state");
+
+      if (sensorValues[0] < 200) {
+        lcd.setCursor(0, 1);
+        lcd.print("you won");
+        delay(1200);
+      }
+  }
+
+
+
+
+
+
+
+
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor(0, 0);
@@ -51,5 +80,14 @@ void loop() {
   Serial.println();
 
   delay(10);
+
+
+
+
+
+
+
+
+
 }
 
