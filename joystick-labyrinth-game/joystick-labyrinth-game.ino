@@ -6,7 +6,7 @@
 #define VRX_PIN  A0 // Arduino pin connected to VRX pin
 #define VRY_PIN  A1 // Arduino pin connected to VRY pin
 
-const int rs = 53, en = 51, d4 = 44, d5 = 45, d6 = 46, d7 = 47; // pin nums for lcd
+const int rs = 52, en = 50, d4 = 53, d5 = 51, d6 = 49, d7 = 47; // pin nums for lcd
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
 
 QTRSensors qtr; // created reflective sensor object
@@ -31,7 +31,7 @@ void setup() {
   // lcd.print("hello, world!");
 
   qtr.setTypeAnalog();
-  qtr.setSensorPins((const uint8_t[]){A2}, SensorCount);
+  qtr.setSensorPins((const uint8_t[]){A8}, SensorCount);
   qtr.setEmitterPin(2);
 }
 
@@ -39,6 +39,11 @@ void loop() {
 
   xVal = analogRead(VRX_PIN);
   yVal = analogRead(VRY_PIN);
+  // Serial.print("xVal: ");
+  // Serial.println(xVal);
+  // Serial.print("yVal: ");
+  // // Serial.println(yVal);
+  // delay(100);
 
   if (xVal > 482 && xVal < 542) {
     xVal = 512;
@@ -47,8 +52,8 @@ void loop() {
     yVal = 512;
   }
 
-  pos0 = map(xVal, 0, 1023, 87, 93);
-  pos1 = map(yVal, 0, 1023, 87, 93);
+  pos0 = map(xVal, 0, 1012, 87, 93);
+  pos1 = map(yVal, 0, 1012, 87, 93);
 
   s0.write(pos0);
   s1.write(pos1);
@@ -60,14 +65,16 @@ void loop() {
 
   // read raw sensor values
   qtr.read(sensorValues);
+  Serial.println(sensorValues[0]);
+  delay(100);
 
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
   if (sensorValues[0] < 200) {
     lcd.setCursor(0, 1);
     lcd.print("YOU WON!");
-    tone(10, C1);
-    delay(5000);
+    tone(3, C1, 1000);
+    delay(3000);
   } else {
     lcd.setCursor(0, 1);
     lcd.print("In PROgress");
