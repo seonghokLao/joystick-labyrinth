@@ -2,7 +2,7 @@
 #include <LiquidCrystal.h> // for lcd
 #include <QTRSensors.h> // for sensor
 
-const int rs = 53, en = 51, d4 = 44, d5 = 45, d6 = 46, d7 = 47; // pin nums for lcd
+const int rs = 52, en = 53, d4 = 48, d5 = 50, d6 = 51, d7 = 49; // pin nums for lcd
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
 
 QTRSensors qtr; // created reflective sensor object
