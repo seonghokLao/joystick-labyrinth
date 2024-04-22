@@ -5,6 +5,7 @@
 
 #define VRX_PIN  A0 // Arduino pin connected to VRX pin
 #define VRY_PIN  A1 // Arduino pin connected to VRY pin
+#define JOYSTICK_BUTTON 44 // Arduino pin connected to button pushed pin
 
 const int rs = 52, en = 50, d4 = 53, d5 = 51, d6 = 49, d7 = 47; // pin nums for lcd
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
