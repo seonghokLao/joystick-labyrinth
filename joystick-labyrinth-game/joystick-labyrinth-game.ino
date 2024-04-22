@@ -1,6 +1,10 @@
-
+#include <Servo.h>
 #include <LiquidCrystal.h> // for lcd
 #include <QTRSensors.h> // for sensor
+#include "pitches.h"
+
+#define VRX_PIN  A0 // Arduino pin connected to VRX pin
+#define VRY_PIN  A1 // Arduino pin connected to VRY pin
 
 const int rs = 53, en = 51, d4 = 44, d5 = 45, d6 = 46, d7 = 47; // pin nums for lcd
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
@@ -9,51 +13,46 @@ QTRSensors qtr; // created reflective sensor object
 const uint8_t SensorCount = 1; // 1 bc we only have 1 sensor
 uint16_t sensorValues[SensorCount];
 
-enum GameState {
-  BEGIN_STATE,
-  IN_GAME_STATE
-};
+int xVal = 0; // To store value of the X axis
+int yVal = 0; // To store value of the Y axis
 
-GameState currState = BEGIN_STATE;
+Servo s0;
+Servo s1;
 
-
+int pos0 = 0;
+int pos1 = 0;
 
 void setup() {
+  s0.attach(8);
+  s1.attach(9);
+  Serial.begin(9600);
+
   lcd.begin(16, 2); // LCD's number of columns and rows
   // lcd.print("hello, world!");
 
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A2}, SensorCount);
   qtr.setEmitterPin(2);
-
-  Serial.begin(9600);
 }
-
-
 
 void loop() {
 
-  // switch(currState) {
-  //   case BEGIN_STATE:
-  //     // code for starting new game
-  //     Serial.println("we are in begin state");
-  //     lcd.print("Welcome to Labyrinth");
-    
-  //   case IN_GAME_STATE:
-  //     Serial.println("in, in game state");
+  xVal = analogRead(VRX_PIN);
+  yVal = analogRead(VRY_PIN);
 
-  //     if (sensorValues[0] < 200) {
-  //       lcd.setCursor(0, 1);
-  //       lcd.print("you won");
-  //       delay(1200);
-  //     }
-  // }
+  if (xVal > 482 && xVal < 542) {
+    xVal = 512;
+  }
+  if (yVal > 482 && yVal < 542) {
+    yVal = 512;
+  }
 
+  pos0 = map(xVal, 0, 1023, 87, 93);
+  pos1 = map(yVal, 0, 1023, 87, 93);
 
+  s0.write(pos0);
+  s1.write(pos1);
 
-
-  // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
   // print the number of seconds since reset:
@@ -67,18 +66,10 @@ void loop() {
   if (sensorValues[0] < 200) {
     lcd.setCursor(0, 1);
     lcd.print("YOU WON!");
-    // Serial.println(">>> game won; detected a ball");
+    tone(10, C1);
     delay(5000);
   } else {
     lcd.setCursor(0, 1);
     lcd.print("In PROgress");
-    // Serial.println("in game");
   }
-
-  Serial.println();
-
-  delay(10);
-
-
 }
-
