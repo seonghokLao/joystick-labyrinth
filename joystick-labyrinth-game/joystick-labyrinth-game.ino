@@ -23,6 +23,9 @@ Servo s1;
 int pos0 = 0;
 int pos1 = 0;
 
+unsigned long startTime = 0; // var used to store time value for lcd
+unsigned long elapsedTime = 0;
+
 void setup() {
   s0.attach(8);
   s1.attach(9);
@@ -34,9 +37,12 @@ void setup() {
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A8}, SensorCount);
   qtr.setEmitterPin(2);
+
+  startTime = millis();
 }
 
 void loop() {
+  unsigned long currentTime = millis();
 
   xVal = analogRead(VRX_PIN);
   yVal = analogRead(VRY_PIN);
@@ -62,7 +68,8 @@ void loop() {
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
   // print the number of seconds since reset:
-  lcd.print(millis() / 1000);
+  currTime = millis();
+  lcd.print(currTime / 1000);
 
   // read raw sensor values
   qtr.read(sensorValues);
@@ -72,12 +79,19 @@ void loop() {
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
   if (sensorValues[0] < 200) {
-    lcd.setCursor(0, 1);
+    lcd.clear();
+    lcd.setCursor(0, 0);
     lcd.print("YOU WON!");
+
     tone(3, C1, 1000);
     delay(3000);
   } else {
     lcd.setCursor(0, 1);
     lcd.print("In PROgress");
   }
+}
+
+void restartTime() {
+  startTime = currentTime;
+  elapsedTime = 0;
 }
