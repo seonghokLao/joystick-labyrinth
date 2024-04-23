@@ -5,7 +5,7 @@
 
 #define VRX_PIN  A0 // Arduino pin connected to VRX pin
 #define VRY_PIN  A1 // Arduino pin connected to VRY pin
-#define JOYSTICK_BUTTON 44 // Arduino pin connected to button pushed pin
+#define JOYSTICK_BUTTON_PIN 6 // Arduino pin connected to button pushed pin
 
 const int rs = 52, en = 50, d4 = 53, d5 = 51, d6 = 49, d7 = 47; // pin nums for lcd
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // created lcd object
@@ -24,25 +24,27 @@ int pos0 = 0;
 int pos1 = 0;
 
 unsigned long startTime = 0; // var used to store time value for lcd
-unsigned long elapsedTime = 0;
+unsigned long currentTime = 0;
+
+
+
 
 void setup() {
   s0.attach(8);
   s1.attach(9);
   Serial.begin(9600);
 
+  pinMode(JOYSTICK_BUTTON_PIN, INPUT); // for joystick click
+
   lcd.begin(16, 2); // LCD's number of columns and rows
-  // lcd.print("hello, world!");
 
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A8}, SensorCount);
   qtr.setEmitterPin(2);
 
-  startTime = millis();
 }
 
 void loop() {
-  unsigned long currentTime = millis();
 
   xVal = analogRead(VRX_PIN);
   yVal = analogRead(VRY_PIN);
@@ -68,13 +70,22 @@ void loop() {
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
   // print the number of seconds since reset:
-  currTime = millis();
-  lcd.print(currTime / 1000);
+  currentTime = millis() - startTime;
+  lcd.print(currentTime / 1000);
+
+  Serial.println(digitalRead(JOYSTICK_BUTTON_PIN));
+  delay(100);
+  // if (digitalRead(JOYSTICK_BUTTON_PIN) == 1) {
+  //   Serial.println("joystick was pushed");
+  //   // delay(500);
+  //   // add logic here
+  //   restartTime();
+  // }
 
   // read raw sensor values
   qtr.read(sensorValues);
-  Serial.println(sensorValues[0]);
-  delay(100);
+  // Serial.println(sensorValues[0]);
+  // delay(100);
 
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
@@ -82,16 +93,19 @@ void loop() {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("YOU WON!");
-
     tone(3, C1, 1000);
     delay(3000);
+    restartTime();
   } else {
     lcd.setCursor(0, 1);
     lcd.print("In PROgress");
   }
+
+
+
 }
 
+
 void restartTime() {
-  startTime = currentTime;
-  elapsedTime = 0;
+  startTime = millis();
 }
