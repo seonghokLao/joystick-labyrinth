@@ -53,7 +53,7 @@ void setup() {
 
 void loop() {
   if (ct >= 5000) {
-    Serial.println("button pressed");
+    // Serial.println("button pressed");
     ct = 0;
     resetTimer();
   }
@@ -85,8 +85,8 @@ void loop() {
   currentTime = millis() - offset;
   lcd.print(currentTime / 1000);
 
-  Serial.println(digitalRead(2));
-  delay(100);
+  // Serial.println(digitalRead(2));
+  // delay(100);
   if (digitalRead(JOYSTICK_BUTTON_PIN) == 0) {
     ct += 1;
   } else {
@@ -99,7 +99,7 @@ void loop() {
   // delay(100);
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
-  if (sensorValues[0] < 200) {
+  if (sensorValues[0] < 180) {
     gameWin();
   } else {
     lcd.setCursor(0, 1);
@@ -118,7 +118,7 @@ void gameWin() {
   lcd.print("YOU WON!");
   for (int thisNote = 0; thisNote < 10; thisNote++) {
     int noteDuration = 1000 / noteDurations[thisNote];
-    tone(8, melody[thisNote], noteDuration);
+    tone(2, melody[thisNote], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     noTone(8);
