@@ -34,7 +34,7 @@ int melody[] = {
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
-  8, 4, 4, 4, 4, 2.67, 4, 4, 8, 8
+  8, 4, 4, 4, 4, 3, 4, 4, 8, 8
 };
 
 void setup() {
@@ -52,11 +52,11 @@ void setup() {
 }
 
 void loop() {
-  if (ct >= 5000) {
-    // Serial.println("button pressed");
-    ct = 0;
-    resetTimer();
-  }
+  // if (ct >= 5000) {
+  //   // Serial.println("button pressed");
+  //   ct = 0;
+  //   resetTimer();
+  // }
 
   xVal = analogRead(VRX_PIN);
   yVal = analogRead(VRY_PIN);
@@ -73,17 +73,15 @@ void loop() {
     yVal = 512;
   }
 
+  
+
   pos0 = map(xVal, 0, 1012, 87, 93);
   pos1 = map(yVal, 0, 1012, 87, 93);
 
   s0.write(pos0);
   s1.write(pos1);
 
-  lcd.setCursor(0, 0);
-  lcd.print("Time: ");
-  // print the number of seconds since reset:
-  currentTime = millis() - offset;
-  lcd.print(currentTime / 1000);
+  
 
   // Serial.println(digitalRead(2));
   // delay(100);
@@ -99,14 +97,20 @@ void loop() {
   // delay(100);
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
+  currentTime = (millis() - offset)/1000;
   if (sensorValues[0] < 180) {
     gameWin();
   } else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Time: ");
+    // print the number of seconds since reset:
+    lcd.print(currentTime);
     lcd.setCursor(0, 1);
-    if (currentTime < 10) {
+    if (currentTime < 30) {
       lcd.print("MOVE THE BALL!");
     }
-    if (currentTime >= 10) {
+    if (currentTime >= 30) {
       lcd.print("HURRY UP!");
     }
   }
@@ -115,6 +119,9 @@ void loop() {
 void gameWin() {
   lcd.clear();
   lcd.setCursor(0, 0);
+  lcd.print("Time: ");
+  lcd.print(currentTime);
+  lcd.setCursor(0, 1);
   lcd.print("YOU WON!");
   for (int thisNote = 0; thisNote < 10; thisNote++) {
     int noteDuration = 1000 / noteDurations[thisNote];
@@ -123,6 +130,9 @@ void gameWin() {
     delay(pauseBetweenNotes);
     noTone(8);
   }
+  s1.write(85);
+  delay(1000);
+
 }
 
 void resetTimer() {
