@@ -28,14 +28,25 @@ unsigned long offset = 0;
 
 int ct = 0; // counter for how many cycles the button is held for
 
-int melody[] = {
+int winTune[] = {
   E5, E5, E5, C5, E5, E5, G5, G5, C6, C6
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = {
+int winTuneDurations[] = {
   8, 4, 4, 4, 4, 3, 4, 4, 8, 8
 };
+
+int startTune[] = {
+  A4, A4, A4, A5
+};
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int startTuneDurations[] = {
+  2, 2, 2, 2
+};
+
+bool ready = false;
 
 void setup() {
   s0.attach(8);
@@ -65,58 +76,62 @@ void loop() {
   // Serial.print("yVal: ");
   // Serial.println(yVal);
   // delay(100);
-
-  if (xVal > 482 && xVal < 542) {
-    xVal = 512;
-  }
-  if (yVal > 482 && yVal < 542) {
-    yVal = 512;
-  }
-
-  
-
-  pos0 = map(xVal, 0, 1012, 87, 93);
-  pos1 = map(yVal, 0, 1012, 87, 93);
-
-  s0.write(pos0);
-  s1.write(pos1);
-
-  
-
-  // Serial.println(digitalRead(2));
-  // delay(100);
-  if (digitalRead(JOYSTICK_BUTTON_PIN) == 0) {
-    ct += 1;
-  } else {
-    ct = 0;
-  }
-
-  // read raw sensor values
-  qtr.read(sensorValues);
-  // Serial.println(sensorValues[0]);
-  // delay(100);
-  // print the sensor values as numbers from 0 to 1023, where 0 means maximum
-  // reflectance and 1023 means minimum reflectance
-  currentTime = (millis() - offset)/1000;
-  if (sensorValues[0] < 180) {
-    gameWin();
-  } else {
+  if (!ready) {
     lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Time: ");
-    // print the number of seconds since reset:
-    lcd.print(currentTime);
-    lcd.setCursor(0, 1);
-    if (currentTime < 30) {
-      lcd.print("MOVE THE BALL!");
+    lcd.print("Move Joystick To Start.");
+    if (xVal < 50 || xVal > 950 || yVal < 50 || yVal > 950) {
+      ready = true;
+      for (int thisNote = 0; thisNote < 10; thisNote++) {
+        int noteDuration = 1000 / startTuneDurations[thisNote];
+        tone(2, startTune[thisNote], noteDuration);
+        int pauseBetweenNotes = noteDuration * 1.30;
+        delay(pauseBetweenNotes);
+        noTone(8);
+      }
+      resetTimer();
     }
-    if (currentTime >= 30) {
-      lcd.print("HURRY UP!");
+  }
+
+  if (ready) {
+    if (xVal > 482 && xVal < 542) {
+      xVal = 512;
+    }
+    if (yVal > 482 && yVal < 542) {
+      yVal = 512;
+    }
+
+    pos0 = map(xVal, 0, 1012, 87, 93);
+    pos1 = map(yVal, 0, 1012, 87, 93);
+
+    s0.write(pos0);
+    s1.write(pos1);
+
+    // Serial.println(digitalRead(2));
+    // delay(100);
+    // if (digitalRead(JOYSTICK_BUTTON_PIN) == 0) {
+    //   ct += 1;
+    // } else {
+    //   ct = 0;
+    // }
+
+    // read raw sensor values
+    qtr.read(sensorValues);
+    // Serial.println(sensorValues[0]);
+    // delay(100);
+    // print the sensor values as numbers from 0 to 1023, where 0 means maximum
+    // reflectance and 1023 means minimum reflectance
+    currentTime = (millis() - offset)/1000;
+    if (sensorValues[0] < 180) {
+      gameWin();
+    } else {
+      gameInProgress();
     }
   }
 }
 
 void gameWin() {
+  ready = false;
+
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
@@ -124,15 +139,28 @@ void gameWin() {
   lcd.setCursor(0, 1);
   lcd.print("YOU WON!");
   for (int thisNote = 0; thisNote < 10; thisNote++) {
-    int noteDuration = 1000 / noteDurations[thisNote];
-    tone(2, melody[thisNote], noteDuration);
+    int noteDuration = 1000 / winTuneDurations[thisNote];
+    tone(2, winTune[thisNote], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     noTone(8);
   }
   s1.write(85);
   delay(1000);
+}
 
+void gameInProgress() {
+  lcd.clear();
+  lcd.print("Time: ");
+  // print the number of seconds since reset:
+  lcd.print(currentTime);
+  lcd.setCursor(0, 1);
+  if (currentTime < 30) {
+    lcd.print("MOVE THE BALL!");
+  }
+  if (currentTime >= 30) {
+    lcd.print("HURRY UP!");
+  }
 }
 
 void resetTimer() {
