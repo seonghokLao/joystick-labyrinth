@@ -78,21 +78,25 @@ void loop() {
   // delay(100);
   if (!ready) {
     lcd.clear();
-    lcd.print("Move Joystick To Start.");
+    lcd.print("Move Joystick");
+    lcd.setCursor(0, 1);
+    lcd.print("To Start.");
     if (xVal < 50 || xVal > 950 || yVal < 50 || yVal > 950) {
       ready = true;
-      for (int thisNote = 0; thisNote < 10; thisNote++) {
+      for (int thisNote = 0; thisNote < 4; thisNote++) {
         int noteDuration = 1000 / startTuneDurations[thisNote];
         tone(2, startTune[thisNote], noteDuration);
         int pauseBetweenNotes = noteDuration * 1.30;
         delay(pauseBetweenNotes);
-        noTone(8);
+        noTone(2);
       }
+      delay(100);
       resetTimer();
     }
   }
 
   if (ready) {
+    // Serial.println("game started");
     if (xVal > 482 && xVal < 542) {
       xVal = 512;
     }
@@ -143,9 +147,9 @@ void gameWin() {
     tone(2, winTune[thisNote], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
-    noTone(8);
+    noTone(2);
   }
-  s1.write(85);
+  s0.write(95);
   delay(1000);
 }
 
