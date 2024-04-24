@@ -23,11 +23,10 @@ Servo s1;
 int pos0 = 0;
 int pos1 = 0;
 
-unsigned long startTime = 0; // var used to store time value for lcd
 unsigned long currentTime = 0;
+unsigned long offset = 0;
 
-
-
+int ct = 0; // counter for how many cycles the button is held for
 
 void setup() {
   s0.attach(8);
@@ -41,10 +40,14 @@ void setup() {
   qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){A8}, SensorCount);
   qtr.setEmitterPin(2);
-
 }
 
 void loop() {
+  if (ct >= 5000) {
+    Serial.println("button pressed");
+    ct = 0;
+    resetTimer();
+  }
 
   xVal = analogRead(VRX_PIN);
   yVal = analogRead(VRY_PIN);
@@ -70,17 +73,16 @@ void loop() {
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
   // print the number of seconds since reset:
-  currentTime = millis() - startTime;
+  currentTime = millis() - offset;
   lcd.print(currentTime / 1000);
 
-  Serial.println(digitalRead(JOYSTICK_BUTTON_PIN));
-  delay(100);
-  // if (digitalRead(JOYSTICK_BUTTON_PIN) == 1) {
-  //   Serial.println("joystick was pushed");
-  //   // delay(500);
-  //   // add logic here
-  //   restartTime();
-  // }
+  //Serial.println(digitalRead(JOYSTICK_BUTTON_PIN));
+  // delay(100);
+  if (digitalRead(JOYSTICK_BUTTON_PIN) == 0) {
+    ct += 1;
+  } else {
+    ct = 0;
+  }
 
   // read raw sensor values
   qtr.read(sensorValues);
@@ -89,23 +91,18 @@ void loop() {
 
   // print the sensor values as numbers from 0 to 1023, where 0 means maximum
   // reflectance and 1023 means minimum reflectance
-  if (sensorValues[0] < 200) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("YOU WON!");
-    tone(3, C1, 1000);
-    delay(3000);
-    restartTime();
-  } else {
-    lcd.setCursor(0, 1);
-    lcd.print("In PROgress");
-  }
-
-
-
+  // if (sensorValues[0] < 200) {
+  //   lcd.clear();
+  //   lcd.setCursor(0, 0);
+  //   lcd.print("YOU WON!");
+  //   tone(3, C1, 1000);
+  //   delay(3000);
+  // } else {
+  //   lcd.setCursor(0, 1);
+  //   lcd.print("In PROgress");
+  // }
 }
 
-
-void restartTime() {
-  startTime = millis();
+void resetTimer() {
+  offset = millis();
 }
