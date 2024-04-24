@@ -29,12 +29,12 @@ unsigned long offset = 0;
 int ct = 0; // counter for how many cycles the button is held for
 
 int melody[] = {
-  E5, E5, E5, C5, E5, E5, G5, G5, C5, C5
+  E5, E5, E5, C5, E5, E5, G5, G5, C6, C6
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = {
-  4, 8, 8, 8, 8, 12, 8, 8, 4, 4
+  4, 16, 16, 16, 16, 24, 16, 16, 8, 8
 };
 
 void setup() {
