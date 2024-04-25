@@ -28,22 +28,39 @@ unsigned long offset = 0;
 
 int ct = 0; // counter for how many cycles the button is held for
 
-int winTune[] = {
-  E5, E5, E5, C5, E5, E5, G5, G5, C6, C6
-};
+// int idleTune[] = {
+//   E5, G5, E5, G5, C5, C5, A5, C5, D5, E5, C5, E5, G5, E5, G5, C5,
+// };
 
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
-int winTuneDurations[] = {
-  8, 4, 4, 4, 4, 3, 4, 4, 8, 8
-};
+// // note durations: 4 = quarter note, 8 = eighth note, etc.:
+// int idleTuneDurations[] = {
+//   4, 8, 4, 4, 2, 16, 16, 8, 8, 8, 8, 4, 8, 4, 4, 1.5
+// };
 
 int startTune[] = {
   A4, A4, A4, A5
 };
 
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
-int startTuneDurations[] = {
-  2, 2, 2, 2
+float startTuneDurations[] = {
+  1.5, 1.5, 1.5, 1.5
+};
+
+// int winTune[] = {
+//   E5, E5, E5, C5, E5, E5, G5, G5, C6, C6
+// };
+
+// // note durations: 4 = quarter note, 8 = eighth note, etc.:
+// int winTuneDurations[] = {
+//   8, 4, 4, 4, 4, 3, 4, 4, 8, 8
+// };
+
+int winTune[] = {
+  G3, C4, E4, G4, C5, E5, G5, E5, GS3, C4, DS4, GS4, C5, DS5, GS5, DS5, AS3, D4, F4, AS4, D5, F5, AS5, AS5, AS5, AS5, C6
+};
+
+int winTuneDurations[] = {
+  9, 9, 9, 9, 9, 9, 3, 3, 9, 9, 9, 9, 9, 9, 3, 3, 9, 9, 9, 9, 9, 9, 3, 9, 9, 9, 3
 };
 
 bool ready = false;
@@ -82,16 +99,7 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("To Start.");
     if (xVal < 50 || xVal > 950 || yVal < 50 || yVal > 950) {
-      ready = true;
-      for (int thisNote = 0; thisNote < 4; thisNote++) {
-        int noteDuration = 1000 / startTuneDurations[thisNote];
-        tone(2, startTune[thisNote], noteDuration);
-        int pauseBetweenNotes = noteDuration * 1.30;
-        delay(pauseBetweenNotes);
-        noTone(2);
-      }
-      delay(100);
-      resetTimer();
+      gameStart();
     }
   }
 
@@ -133,8 +141,30 @@ void loop() {
   }
 }
 
+void gameStart() {
+  ready = true;
+  delay(500);
+  for (int i = 0; i < 4; i++) {
+    lcd.clear();
+    lcd.setCursor(7, 0);
+    if (i == 3) {
+      lcd.print("GO!!!");
+    } else {
+      lcd.print(3 - i);
+    }
+    int noteDuration = 1000 / startTuneDurations[i];
+    tone(2, startTune[i], noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    noTone(2);
+  }
+  delay(100);
+  resetTimer();
+}
+
 void gameWin() {
   ready = false;
+  s0.write(100);
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -142,15 +172,28 @@ void gameWin() {
   lcd.print(currentTime);
   lcd.setCursor(0, 1);
   lcd.print("YOU WON!");
-  for (int thisNote = 0; thisNote < 10; thisNote++) {
-    int noteDuration = 1000 / winTuneDurations[thisNote];
-    tone(2, winTune[thisNote], noteDuration);
+  for (int i = 0; i < 27; i++) {
+    if (i % 3 == 0) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Time: ");
+      lcd.print(currentTime);
+    } else {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Time: ");
+      lcd.print(currentTime);
+      lcd.setCursor(0, 1);
+      lcd.print("YOU WON!");
+    }
+    int noteDuration = 1000 / winTuneDurations[i];
+    tone(2, winTune[i], noteDuration);
     int pauseBetweenNotes = noteDuration * 1.30;
     delay(pauseBetweenNotes);
     noTone(2);
   }
-  s0.write(95);
-  delay(1000);
+  s0.write(90);
+  delay(3000);
 }
 
 void gameInProgress() {
