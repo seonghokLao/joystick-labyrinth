@@ -65,6 +65,12 @@ int winTuneDurations[] = {
 
 bool ready = false;
 
+bool needClear = true;
+
+bool printed = false;
+
+bool transitioned = false;
+
 void setup() {
   s0.attach(8);
   s1.attach(9);
@@ -94,10 +100,14 @@ void loop() {
   // Serial.println(yVal);
   // delay(100);
   if (!ready) {
-    lcd.clear();
-    lcd.print("Move Joystick");
-    lcd.setCursor(0, 1);
-    lcd.print("To Start.");
+    s0.write(90);
+    s1.write(90);
+    if (!printed) {
+      lcd.print("Move Joystick");
+      lcd.setCursor(0, 1);
+      lcd.print("To Start.");
+      printed = true;
+    }
     if (xVal < 50 || xVal > 950 || yVal < 50 || yVal > 950) {
       gameStart();
     }
@@ -134,8 +144,16 @@ void loop() {
     // reflectance and 1023 means minimum reflectance
     currentTime = (millis() - offset)/1000;
     if (sensorValues[0] < 180) {
+      needClear = true;
+      printed = false;
       gameWin();
     } else {
+      if (!printed) {
+        lcd.setCursor(0, 0);
+        lcd.print("Time: ");
+        lcd.setCursor(0,1);
+        lcd.print("MOVE THE BALL!");
+      }
       gameInProgress();
     }
   }
@@ -160,11 +178,13 @@ void gameStart() {
   }
   delay(100);
   resetTimer();
+  printed = false;
 }
 
 void gameWin() {
   ready = false;
   s0.write(100);
+  s1.write(90);
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -194,20 +214,34 @@ void gameWin() {
   }
   s0.write(90);
   delay(3000);
+  lcd.clear();
 }
 
 void gameInProgress() {
-  lcd.clear();
-  lcd.print("Time: ");
+  if (needClear) {
+    lcd.clear();
+    needClear = false;
+  }
+  if (!printed) {
+    lcd.print("Time: ");
+    lcd.setCursor(0,1);
+    if (currentTime < 30) {
+      lcd.print("MOVE THE BALL!");
+    }
+    if (currentTime >= 30) {
+      lcd.print("HURRY UP!");
+    }
+    printed = true;
+  }
+  if (currentTime == 30 && !transitioned) {
+    transitioned = true;
+    needClear = true;
+    printed = false;
+  }
+  lcd.setCursor(6, 0);
   // print the number of seconds since reset:
   lcd.print(currentTime);
-  lcd.setCursor(0, 1);
-  if (currentTime < 30) {
-    lcd.print("MOVE THE BALL!");
-  }
-  if (currentTime >= 30) {
-    lcd.print("HURRY UP!");
-  }
+  
 }
 
 void resetTimer() {
